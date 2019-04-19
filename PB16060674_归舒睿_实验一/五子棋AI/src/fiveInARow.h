@@ -41,40 +41,35 @@ namespace fiveInARow
 #define GOAL_ALIVE_TWO 30
 #define GOAL_SEMI_TWO 10
 #define GOAL_DEAD_TWO 5
-#define GOAL_SINGLE 1
+#define GOAL_SINGLE 0
 
-typedef struct {
-    int x, y;
-} pos;
+#define MAX_CHESS 1
+#define MIN_CHESS 2
+#define NO_CHESS 0
 
-typedef pos positions[5];
 
 class Chess
 {
 private:
     int table[17][17];
     int maxTypeNum[11];
-    int maxTypeGoal[11];
+    float maxTypeGoal[11];
     int minTypeNum[11];
-    int minTypeGoal[11];
-    int goal; 
+    float minTypeGoal[11];
+    float goal; 
 public:
     Chess(/* args */);
     void flush();
     void scan();
     void judge(int, int, int, int, int, string);
     void evaluate();
-    void value();
+    float value();
+    void show(int, int);
+    int getTable(int, int);
+    void setTable(int, int, int);
     ~Chess();
 };
 
-void posClean(positions &p)
-{
-    for(int i=0; i<5; i++){
-        p[i].x = -1;
-        p[i].y = -1;
-    }
-}
 
 Chess::Chess(/* args */)
 {
@@ -114,9 +109,9 @@ inline void Chess::judge(int bx, int by, int ex, int ey, int type, string who)
             maxTypeNum[type]++;
         else{
             if(table[bx][by] != 0 || table[ex][ey] != 0)
-                maxTypeNum[type + 1]++;
+                maxTypeNum[type - 1]++;
             else
-                maxTypeNum[type + 2]++;
+                maxTypeNum[type - 2]++;
         }
     }
     if(!who.compare("Min")){
@@ -124,9 +119,9 @@ inline void Chess::judge(int bx, int by, int ex, int ey, int type, string who)
             minTypeNum[type]++;
         else{
             if(table[bx][by] != 0 || table[ex][ey] != 0)
-                minTypeNum[type + 1]++;
+                minTypeNum[type - 1]++;
             else
-                minTypeNum[type + 2]++;
+                minTypeNum[type - 2]++;
         }
     }
     
@@ -151,6 +146,7 @@ void Chess::scan()
                     count++;
                 }else{
                     e = j - 1;
+                    print("行：%d  \n", count);
                     switch (count)
                     {
                         case 1:
@@ -236,6 +232,7 @@ void Chess::scan()
                     count++;
                 }else{
                     e = i - 1;
+                    print("列：%d  \n", count);
                     switch (count)
                     {
                         case 1:
@@ -316,12 +313,16 @@ void Chess::scan()
             if(count == 0 && table[i][j] == 1){
                 b = i;
                 count++;
+                i++;
+                j++;
                 continue;
             }
-            if(table[i][j] == 1){
-                    count++;
+            if(count != 0){
+                if(table[i][j] == 1){
+                        count++;
                 }else{
                     e = i - 1;
+                    print("顺对角：%d  \n", count);
                     switch (count)
                     {
                         case 1:
@@ -346,6 +347,7 @@ void Chess::scan()
                     b = -1;
                     e = -1;
                 }
+            }
             i++;
             j++;
         }
@@ -359,6 +361,8 @@ void Chess::scan()
             if(count == 0 && table[i][j] == 2){
                 b = i;
                 count++;
+                i++;
+                j++;
                 continue;
             }
             if(count != 0){
@@ -409,12 +413,16 @@ void Chess::scan()
             if(count == 0 && table[i][j] == 1){
                 b = i;
                 count++;
+                i++;
+                j++;
                 continue;
             }
-            if(table[i][j] == 1){
+            if(count != 0){
+                if(table[i][j] == 1){
                     count++;
                 }else{
                     e = i - 1;
+                    print("顺对角：%d  \n", count);
                     switch (count)
                     {
                         case 1:
@@ -439,6 +447,7 @@ void Chess::scan()
                     b = -1;
                     e = -1;
                 }
+            }
             i++;
             j++;
         }
@@ -452,6 +461,8 @@ void Chess::scan()
             if(count == 0 && table[i][j] == 2){
                 b = i;
                 count++;
+                i++;
+                j++;
                 continue;
             }
             if(count != 0){
@@ -507,12 +518,17 @@ void Chess::scan()
             if(count == 0 && table[i][j] == 1){
                 b = i;
                 count++;
+                i++;
+                j--;
                 continue;
             }
-            if(table[i][j] == 1){
+            if(count != 0){
+                if(table[i][j] == 1){
                     count++;
                 }else{
                     e = i - 1;
+                    print("逆对角：%d  \n", count);
+                    print("b:%d, e:%d\n", b, e);
                     switch (count)
                     {
                         case 1:
@@ -537,6 +553,7 @@ void Chess::scan()
                     b = -1;
                     e = -1;
                 }
+            }
             i++;
             j--;
         }
@@ -550,6 +567,8 @@ void Chess::scan()
             if(count == 0 && table[i][j] == 2){
                 b = i;
                 count++;
+                i++;
+                j--;
                 continue;
             }
             if(count != 0){
@@ -600,12 +619,17 @@ void Chess::scan()
             if(count == 0 && table[i][j] == 1){
                 b = i;
                 count++;
+                i++;
+                j--;
                 continue;
             }
-            if(table[i][j] == 1){
+            if(count != 0){
+                if(table[i][j] == 1){
+                    print("%d, %d", i, j);
                     count++;
                 }else{
                     e = i - 1;
+                    print("逆对角：%d  \n", count);
                     switch (count)
                     {
                         case 1:
@@ -630,6 +654,7 @@ void Chess::scan()
                     b = -1;
                     e = -1;
                 }
+            }
             i++;
             j--;
         }
@@ -643,6 +668,8 @@ void Chess::scan()
             if(count == 0 && table[i][j] == 2){
                 b = i;
                 count++;
+                i++;
+                j--;
                 continue;
             }
             if(count != 0){
@@ -679,6 +706,75 @@ void Chess::scan()
             j--;
         }
     }
+}
+
+void Chess::evaluate()
+{
+    flush();
+    scan();
+    for(int i=0; i<11; i++){
+        print("%d\n", maxTypeNum[i]);
+    }
+
+    maxTypeGoal[TYPE_SINGLE] = pow(maxTypeNum[TYPE_SINGLE], 2) * GOAL_SINGLE;
+    maxTypeGoal[TYPE_DEAD_TWO] = pow(maxTypeNum[TYPE_DEAD_TWO], 2) * GOAL_DEAD_TWO;
+    maxTypeGoal[TYPE_SEMI_TWO] = pow(maxTypeNum[TYPE_SEMI_TWO], 2) * GOAL_SEMI_TWO; 
+    maxTypeGoal[TYPE_ALIVE_TWO] = pow(maxTypeNum[TYPE_ALIVE_TWO], 2) * GOAL_ALIVE_TWO;
+    maxTypeGoal[TYPE_DEAD_THREE] = pow(maxTypeNum[TYPE_DEAD_THREE], 2) * GOAL_DEAD_THREE;
+    maxTypeGoal[TYPE_SEMI_THREE] = pow(maxTypeNum[TYPE_SEMI_THREE], 2) * GOAL_SEMI_THREE;
+    maxTypeGoal[TYPE_ALIVE_THREE] = pow(maxTypeNum[TYPE_ALIVE_THREE], 2) * GOAL_ALIVE_THREE;
+    maxTypeGoal[TYPE_DEAD_FOUR] = pow(maxTypeNum[TYPE_DEAD_FOUR], 2) * GOAL_DEAD_FOUR;
+    maxTypeGoal[TYPE_SEMI_FOUR] = pow(maxTypeNum[TYPE_SEMI_FOUR], 2) * GOAL_SEMI_FOUR;
+    maxTypeGoal[TYPE_ALIVE_FOUR] = pow(maxTypeNum[TYPE_ALIVE_FOUR], 2) * GOAL_ALIVE_FOUR;
+    maxTypeGoal[TYPE_FIVE] = pow(maxTypeNum[TYPE_FIVE], 2) * GOAL_FIVE;
+    minTypeGoal[TYPE_SINGLE] = pow(minTypeNum[TYPE_SINGLE], 2) * GOAL_SINGLE;
+    minTypeGoal[TYPE_DEAD_TWO] = pow(minTypeNum[TYPE_DEAD_TWO], 2) * GOAL_DEAD_TWO;
+    minTypeGoal[TYPE_SEMI_TWO] = pow(minTypeNum[TYPE_SEMI_TWO], 2) * GOAL_SEMI_TWO; 
+    minTypeGoal[TYPE_ALIVE_TWO] = pow(minTypeNum[TYPE_ALIVE_TWO], 2) * GOAL_ALIVE_TWO;
+    minTypeGoal[TYPE_DEAD_THREE] = pow(minTypeNum[TYPE_DEAD_THREE], 2) * GOAL_DEAD_THREE;
+    minTypeGoal[TYPE_SEMI_THREE] = pow(minTypeNum[TYPE_SEMI_THREE], 2) * GOAL_SEMI_THREE;
+    minTypeGoal[TYPE_ALIVE_THREE] = pow(minTypeNum[TYPE_ALIVE_THREE], 2) * GOAL_ALIVE_THREE;
+    minTypeGoal[TYPE_DEAD_FOUR] = pow(minTypeNum[TYPE_DEAD_FOUR], 2) * GOAL_DEAD_FOUR;
+    minTypeGoal[TYPE_SEMI_FOUR] = pow(minTypeNum[TYPE_SEMI_FOUR], 2) * GOAL_SEMI_FOUR;
+    minTypeGoal[TYPE_ALIVE_FOUR] = pow(minTypeNum[TYPE_ALIVE_FOUR], 2) * GOAL_ALIVE_FOUR;
+    minTypeGoal[TYPE_FIVE] = pow(minTypeNum[TYPE_FIVE], 2) * GOAL_FIVE;
+
+    float maxGoal=0, minGoal=0;
+    for(auto goal : maxTypeGoal){
+        maxGoal += goal;
+    }
+    for(auto goal : minTypeGoal){
+        minGoal += goal;
+    }
+    //计算出goal的值
+    goal = maxGoal - minGoal;
+}
+
+float Chess::value(){
+    return goal;
+}
+
+void Chess::show(int x=0, int y=0){
+    for(int i=0; i<17; i++){
+        for(int j=0; j<17; j++){
+            if(i == x && j == y){
+                printf("\033[31m%d \033[0m", table[i][j]);
+            }else
+            {
+                printf("%d ", table[i][j]);
+            }     
+        }
+    }
+}
+
+inline int Chess::getTable(int x, int y)
+{
+    return table[x][y];
+}
+
+inline void Chess::setTable(int x, int y, int value)
+{
+    table[x][y] = value;
 }
 
 Chess::~Chess()
