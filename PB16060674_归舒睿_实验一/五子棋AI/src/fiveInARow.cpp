@@ -54,17 +54,24 @@ priority_queue<structSite> Action()
 float Maximum_value(int depth, float a, float b)
 {
     //print("Max:%d\n", depth);
+    funcChess.evaluate();
+    if(abs(funcChess.value()) > MAX_GOAL/2)
+        return funcChess.value();
     if (depth >= maxDepth){
-        funcChess.evaluate();
         return funcChess.value();
     }
     float val = -2*MAX_GOAL;
     priority_queue<structSite> siteQueue = Action();
-    for(int i=0; i<(int)siteQueue.size(); i++){
+    int size = (int)siteQueue.size();
+    for(int i=0; i<size; i++){
         structSite point = siteQueue.top();
         siteQueue.pop();
 
+        
         funcChess.setTable(point.x, point.y, MAX_CHESS);
+        // funcChess.evaluate();
+        // funcChess.show();
+        // print("a:%f  b:%f  goal:%f\n", a, b, funcChess.value());
         float newVal = Minimum_value(depth + 1, a, b);
         funcChess.setTable(point.x, point.y, NO_CHESS);
 
@@ -76,7 +83,7 @@ float Maximum_value(int depth, float a, float b)
         }
         if(val > a){
             a = val;
-            if(depth == 0){
+            if(depth == 1){
                 nextStep.x = point.x;
                 nextStep.y = point.y;
             }
@@ -88,19 +95,26 @@ float Maximum_value(int depth, float a, float b)
 float Minimum_value(int depth, float a, float b)
 {
     //print("Min:%d\n", depth);
+    funcChess.evaluate();
+    if(abs(funcChess.value()) > MAX_GOAL/2)
+        return funcChess.value();
     if (depth >= maxDepth){
-        funcChess.evaluate();
         return funcChess.value();
     }
-
+    
     float val = 2*MAX_GOAL;
     priority_queue<structSite> siteQueue = Action();
-    for(int i=0; i<(int)siteQueue.size(); i++){
+    int size = (int)siteQueue.size();
+    for(int i=0; i<size; i++){
+        print("%d", (int)siteQueue.size());
         structSite point = siteQueue.top();
         
         siteQueue.pop();
 
         funcChess.setTable(point.x, point.y, MIN_CHESS);
+        // funcChess.evaluate();
+        // funcChess.show();
+        // print("a:%f  b:%f  goal:%f\n", a, b, funcChess.value());
         float newVal = Maximum_value(depth + 1, a, b);
         funcChess.setTable(point.x, point.y, NO_CHESS);
 
@@ -108,6 +122,7 @@ float Minimum_value(int depth, float a, float b)
             val = newVal;
         }
         if(val < a){
+            print("cut!!!!!!!!!\n");
             return val;
         }
         if(val < b){
@@ -119,7 +134,7 @@ float Minimum_value(int depth, float a, float b)
 
 pos AI_where2choose()
 {
-    Maximum_value(0, -2*MAX_GOAL, 2*MAX_GOAL);
+    Maximum_value(1, -2*MAX_GOAL, 2*MAX_GOAL);
     funcChess.setTable(nextStep.x, nextStep.y, MAX_CHESS);
     funcChess.show(nextStep.x, nextStep.y);
 }
@@ -127,6 +142,10 @@ pos AI_where2choose()
 int main(int argc, char ** argv)
 {
     funcChess.setTable(8, 8, MAX_CHESS);
+    // funcChess.setTable(9, 9, MIN_CHESS);
+    // funcChess.setTable(9, 7, MAX_CHESS);
+    // funcChess.evaluate();
+    // print("%f\n", funcChess.value());
     funcChess.show(8, 8);
 
     int userx, usery;

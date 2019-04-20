@@ -8,7 +8,7 @@
 using namespace std;
 
 // Debug model
-#define DEBUG
+//#define DEBUG
 #ifdef DEBUG
 #define print(format, args...) printf(format, ##args)
 #else
@@ -32,7 +32,7 @@ namespace fiveInARow
 #define TYPE_SINGLE 10
 
 #define GOAL_FIVE MAX_GOAL
-#define GOAL_ALIVE_FOUR 5000
+#define GOAL_ALIVE_FOUR 6000
 #define GOAL_SEMI_FOUR 1000
 #define GOAL_DEAD_FOUR 50
 #define GOAL_ALIVE_THREE 500
@@ -317,7 +317,7 @@ void Chess::scan()
             }
             if(count != 0){
                 if(table[i][j] == 1){
-                        count++;
+                    count++;
                 }else{
                     e = i - 1;
                     switch (count)
@@ -605,7 +605,7 @@ void Chess::scan()
     /****************************************************************************************/
     /******************************************遍历逆对角线2***********************************/
     /****************************************************************************************/
-    for(int k=1; k<=15; k++){
+    for(int k=2; k<=15; k++){
         int i=k, j=15;
         int count=0, b=-1, e=-1;
         while(i != 17){
@@ -704,8 +704,13 @@ void Chess::evaluate()
 {
     flush();
     scan();
+    // print("max:\n");
     // for(int i=0; i<11; i++){
     //     print("%d\n", maxTypeNum[i]);
+    // }
+    // print("min:\n");
+    // for(int i=0; i<11; i++){
+    //     print("%d\n", minTypeNum[i]);
     // }
 
     maxTypeGoal[TYPE_SINGLE] = pow(maxTypeNum[TYPE_SINGLE], 2) * GOAL_SINGLE;
@@ -719,7 +724,7 @@ void Chess::evaluate()
     maxTypeGoal[TYPE_SEMI_FOUR] = pow(maxTypeNum[TYPE_SEMI_FOUR], 2) * GOAL_SEMI_FOUR;
     maxTypeGoal[TYPE_ALIVE_FOUR] = pow(maxTypeNum[TYPE_ALIVE_FOUR], 2) * GOAL_ALIVE_FOUR;
     maxTypeGoal[TYPE_FIVE] = pow(maxTypeNum[TYPE_FIVE], 2) * GOAL_FIVE;
-    
+
     minTypeGoal[TYPE_SINGLE] = pow(minTypeNum[TYPE_SINGLE], 2) * GOAL_SINGLE;
     minTypeGoal[TYPE_DEAD_TWO] = pow(minTypeNum[TYPE_DEAD_TWO], 2) * GOAL_DEAD_TWO;
     minTypeGoal[TYPE_SEMI_TWO] = pow(minTypeNum[TYPE_SEMI_TWO], 2) * GOAL_SEMI_TWO; 
@@ -740,7 +745,7 @@ void Chess::evaluate()
         minGoal += goal;
     }
     //计算出goal的值
-    goal = maxGoal - minGoal;
+    goal = maxGoal - minGoal * 1.2;
 }
 
 float Chess::value(){
