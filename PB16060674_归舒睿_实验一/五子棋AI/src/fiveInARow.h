@@ -17,7 +17,7 @@ using namespace std;
 
 namespace fiveInARow
 {
-#define MAX_GOAL 10000
+#define MAX_GOAL 100000
 
 #define TYPE_FIVE 0
 #define TYPE_ALIVE_FOUR 1
@@ -32,11 +32,11 @@ namespace fiveInARow
 #define TYPE_SINGLE 10
 
 #define GOAL_FIVE MAX_GOAL
-#define GOAL_ALIVE_FOUR 500
-#define GOAL_SEMI_FOUR 200
-#define GOAL_DEAD_FOUR 40
-#define GOAL_ALIVE_THREE 100
-#define GOAL_SEMI_THREE 50
+#define GOAL_ALIVE_FOUR 5000
+#define GOAL_SEMI_FOUR 1000
+#define GOAL_DEAD_FOUR 50
+#define GOAL_ALIVE_THREE 500
+#define GOAL_SEMI_THREE 100
 #define GOAL_DEAD_THREE 35
 #define GOAL_ALIVE_TWO 30
 #define GOAL_SEMI_TWO 10
@@ -146,7 +146,6 @@ void Chess::scan()
                     count++;
                 }else{
                     e = j - 1;
-                    print("行：%d  \n", count);
                     switch (count)
                     {
                         case 1:
@@ -232,7 +231,6 @@ void Chess::scan()
                     count++;
                 }else{
                     e = i - 1;
-                    print("列：%d  \n", count);
                     switch (count)
                     {
                         case 1:
@@ -322,7 +320,6 @@ void Chess::scan()
                         count++;
                 }else{
                     e = i - 1;
-                    print("顺对角：%d  \n", count);
                     switch (count)
                     {
                         case 1:
@@ -422,7 +419,6 @@ void Chess::scan()
                     count++;
                 }else{
                     e = i - 1;
-                    print("顺对角：%d  \n", count);
                     switch (count)
                     {
                         case 1:
@@ -527,8 +523,6 @@ void Chess::scan()
                     count++;
                 }else{
                     e = i - 1;
-                    print("逆对角：%d  \n", count);
-                    print("b:%d, e:%d\n", b, e);
                     switch (count)
                     {
                         case 1:
@@ -625,11 +619,9 @@ void Chess::scan()
             }
             if(count != 0){
                 if(table[i][j] == 1){
-                    print("%d, %d", i, j);
                     count++;
                 }else{
                     e = i - 1;
-                    print("逆对角：%d  \n", count);
                     switch (count)
                     {
                         case 1:
@@ -712,9 +704,9 @@ void Chess::evaluate()
 {
     flush();
     scan();
-    for(int i=0; i<11; i++){
-        print("%d\n", maxTypeNum[i]);
-    }
+    // for(int i=0; i<11; i++){
+    //     print("%d\n", maxTypeNum[i]);
+    // }
 
     maxTypeGoal[TYPE_SINGLE] = pow(maxTypeNum[TYPE_SINGLE], 2) * GOAL_SINGLE;
     maxTypeGoal[TYPE_DEAD_TWO] = pow(maxTypeNum[TYPE_DEAD_TWO], 2) * GOAL_DEAD_TWO;
@@ -727,6 +719,7 @@ void Chess::evaluate()
     maxTypeGoal[TYPE_SEMI_FOUR] = pow(maxTypeNum[TYPE_SEMI_FOUR], 2) * GOAL_SEMI_FOUR;
     maxTypeGoal[TYPE_ALIVE_FOUR] = pow(maxTypeNum[TYPE_ALIVE_FOUR], 2) * GOAL_ALIVE_FOUR;
     maxTypeGoal[TYPE_FIVE] = pow(maxTypeNum[TYPE_FIVE], 2) * GOAL_FIVE;
+    
     minTypeGoal[TYPE_SINGLE] = pow(minTypeNum[TYPE_SINGLE], 2) * GOAL_SINGLE;
     minTypeGoal[TYPE_DEAD_TWO] = pow(minTypeNum[TYPE_DEAD_TWO], 2) * GOAL_DEAD_TWO;
     minTypeGoal[TYPE_SEMI_TWO] = pow(minTypeNum[TYPE_SEMI_TWO], 2) * GOAL_SEMI_TWO; 
@@ -755,15 +748,35 @@ float Chess::value(){
 }
 
 void Chess::show(int x=0, int y=0){
+    for(int i=-1; i<17; i++){
+        if(i > 0){
+            printf("\033[31m%2d \033[0m", i);
+        }else{
+            printf("   ");
+        }
+    }
+    printf("\n");
     for(int i=0; i<17; i++){
+        if(i > 0){
+            printf("\033[31m%2d \033[0m", i);
+        }else{
+            printf("   ");
+        }
         for(int j=0; j<17; j++){
             if(i == x && j == y){
-                printf("\033[31m%d \033[0m", table[i][j]);
+                printf("\033[31m%2d \033[0m", table[i][j]);
             }else
             {
-                printf("%d ", table[i][j]);
+                if(table[i][j] == MAX_CHESS){
+                    printf("\033[32m%2d \033[0m", table[i][j]);
+                }else if (table[i][j] == MIN_CHESS){
+                    printf("\033[33m%2d \033[0m", table[i][j]);
+                }else{
+                    printf("%2d ", table[i][j]);
+                }
             }     
         }
+        printf("\n");
     }
 }
 
