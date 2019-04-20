@@ -151,17 +151,25 @@ int main(int argc, char ** argv)
     int userx, usery;
     while(1){
         scanf("%d %d", &userx, &usery);
+        if (funcChess.getTable(userx, usery) != NO_CHESS){
+            cout<< "You cannot set here!"<<endl;
+            continue;
+        }
         funcChess.setTable(userx, usery, MIN_CHESS);
         funcChess.show(userx, usery);
         funcChess.evaluate();
         print("%f\n", funcChess.value());
-        if(abs(funcChess.value()) > MAX_GOAL/2)
+        if(abs(funcChess.value()) > MAX_GOAL/2){
+            cout<< "Congratulation!"<<endl;
             break;
+        }
         AI_where2choose();
         funcChess.evaluate();
         print("%f\n", funcChess.value());
-        if(abs(funcChess.value()) > MAX_GOAL/2)
+        if(abs(funcChess.value()) > MAX_GOAL/2){
+            cout<< "Sorry, you loss..."<<endl;
             break;
+        }
     }
     return 0;
 }
