@@ -15,7 +15,7 @@ typedef struct site{
 } structSite;
 
 
-int maxDepth = 5;
+int maxDepth = 7;
 Chess mainChess;
 Chess funcChess;
 pos nextStep, currentStep;
@@ -36,15 +36,19 @@ priority_queue<structSite> Action()
             // 为空才执行
             //print("Action:%d, %d\n", i, j);
             structSite point = {x:i, y:j, nearNum:0};
-            for(int i1=-1; i1<=1; i1++){
-                for(int j1=-1; j1<=1; j1++){
+            for(int i1=-2; i1<=2; i1++){
+                for(int j1=-2; j1<=2; j1++){
+                    if(i + i1 < 1 || i + i1 > 15 || j + j1 < 1 || j + j1 > 15)
+                        continue;
                     int val = funcChess.getTable(i+i1, j+j1);
                     if(val == MAX_CHESS || val == MIN_CHESS)
                         point.nearNum++;
                 }
             }
-            if(point.nearNum != 0)
+            if(point.nearNum != 0){
+                point.nearNum += funcChess.getDangerRate(i, j);
                 siteQueue.push(point);
+            }
         }
     }
     return siteQueue;
@@ -55,7 +59,7 @@ float Maximum_value(int depth, float a, float b)
 {
     //print("Max:%d\n", depth);
     funcChess.evaluate();
-    if(abs(funcChess.value()) > MAX_GOAL/2)
+    if(fabs(funcChess.value()) > MAX_GOAL/2)
         return funcChess.value();
     if (depth >= maxDepth){
         return funcChess.value();
@@ -96,7 +100,7 @@ float Minimum_value(int depth, float a, float b)
 {
     //print("Min:%d\n", depth);
     funcChess.evaluate();
-    if(abs(funcChess.value()) > MAX_GOAL/2)
+    if(fabs(funcChess.value()) > MAX_GOAL/2)
         return funcChess.value();
     if (depth >= maxDepth){
         return funcChess.value();
@@ -142,6 +146,8 @@ pos AI_where2choose()
 int main(int argc, char ** argv)
 {
     funcChess.setTable(8, 8, MAX_CHESS);
+    FILE *fp;
+    if((fp = fopen("data/input.txt", "r")) == NULL) cout << "Cannot open input file!" << endl;
     // funcChess.setTable(9, 9, MIN_CHESS);
     // funcChess.setTable(9, 7, MAX_CHESS);
     // funcChess.evaluate();
@@ -149,8 +155,12 @@ int main(int argc, char ** argv)
     funcChess.show(8, 8);
 
     int userx, usery;
+    int useFile = 0;
     while(1){
-        scanf("%d %d", &userx, &usery);
+        if(useFile){
+            fscanf(fp, "%d %d\n", &userx, &usery);
+        }else
+            scanf("%d %d", &userx, &usery);
         if (funcChess.getTable(userx, usery) != NO_CHESS){
             cout<< "You cannot set here!"<<endl;
             continue;
@@ -159,14 +169,14 @@ int main(int argc, char ** argv)
         funcChess.show(userx, usery);
         funcChess.evaluate();
         print("%f\n", funcChess.value());
-        if(abs(funcChess.value()) > MAX_GOAL/2){
+        if(fabs(funcChess.value()) > MAX_GOAL/2){
             cout<< "Congratulation!"<<endl;
             break;
         }
         AI_where2choose();
         funcChess.evaluate();
         print("%f\n", funcChess.value());
-        if(abs(funcChess.value()) > MAX_GOAL/2){
+        if(fabs(funcChess.value()) > MAX_GOAL/2){
             cout<< "Sorry, you loss..."<<endl;
             break;
         }

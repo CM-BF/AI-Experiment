@@ -57,6 +57,8 @@ private:
     int minTypeNum[11];
     float minTypeGoal[11];
     float goal; 
+    int dangerRate[17][17];
+    unordered_map<int, int> type2goal;
 public:
     Chess(/* args */);
     void flush();
@@ -67,6 +69,7 @@ public:
     void show(int, int);
     int getTable(int, int);
     void setTable(int, int, int);
+    int getDangerRate(int, int);
     ~Chess();
 };
 
@@ -87,6 +90,25 @@ Chess::Chess(/* args */)
         minTypeNum[i] = 0;
         minTypeGoal[i] = 0;
     }
+
+    for(int i=0; i<17; i++){
+        for(int j=0; j<17; j++){
+            dangerRate[i][j] = 0;
+        }
+    }
+
+    type2goal.insert({TYPE_SINGLE, GOAL_SINGLE});
+    type2goal.insert({TYPE_DEAD_TWO, GOAL_DEAD_TWO});
+    type2goal.insert({TYPE_SEMI_TWO, GOAL_SEMI_TWO});
+    type2goal.insert({TYPE_ALIVE_TWO, GOAL_ALIVE_TWO});
+    type2goal.insert({TYPE_DEAD_THREE, GOAL_DEAD_THREE});
+    type2goal.insert({TYPE_SEMI_THREE, GOAL_SEMI_THREE});
+    type2goal.insert({TYPE_ALIVE_THREE, GOAL_ALIVE_THREE});
+    type2goal.insert({TYPE_DEAD_FOUR, GOAL_DEAD_FOUR});
+    type2goal.insert({TYPE_SEMI_FOUR, GOAL_SEMI_FOUR});
+    type2goal.insert({TYPE_ALIVE_FOUR, GOAL_ALIVE_FOUR});
+    type2goal.insert({TYPE_FIVE, GOAL_FIVE});
+    
         
     goal = 0;
 }
@@ -99,32 +121,56 @@ void Chess::flush()
         minTypeNum[i] = 0;
         minTypeGoal[i] = 0;
     }
+    for(int i=0; i<17; i++){
+        for(int j=0; j<17; j++){
+            dangerRate[i][j] = 0;
+        }
+    }
     goal = 0;
 }
+
+int Chess::getDangerRate(int x, int y)
+{
+    return dangerRate[x][y];
+}
+
 
 inline void Chess::judge(int bx, int by, int ex, int ey, int type, string who)
 {
     if(!who.compare("Max")){
-        if(table[bx][by] != 0 && table[ex][ey] != 0)
+        if(table[bx][by] != 0 && table[ex][ey] != 0){
             maxTypeNum[type]++;
-        else{
-            if(table[bx][by] != 0 || table[ex][ey] != 0)
+            dangerRate[bx][by] = type2goal.at(type);
+            dangerRate[ex][ey] = type2goal.at(type);
+        }else{
+            if(table[bx][by] != 0 || table[ex][ey] != 0){
                 maxTypeNum[type - 1]++;
-            else
+                dangerRate[bx][by] = type2goal.at(type - 1);
+                dangerRate[ex][ey] = type2goal.at(type - 1);
+            }else{
                 maxTypeNum[type - 2]++;
+                dangerRate[bx][by] = type2goal.at(type - 2);
+                dangerRate[ex][ey] = type2goal.at(type - 2);
+            }
         }
     }
     if(!who.compare("Min")){
-        if(table[bx][by] != 0 && table[ex][ey] != 0)
+        if(table[bx][by] != 0 && table[ex][ey] != 0){
             minTypeNum[type]++;
-        else{
-            if(table[bx][by] != 0 || table[ex][ey] != 0)
+            dangerRate[bx][by] = type2goal.at(type);
+            dangerRate[ex][ey] = type2goal.at(type);
+        }else{
+            if(table[bx][by] != 0 || table[ex][ey] != 0){
                 minTypeNum[type - 1]++;
-            else
+                dangerRate[bx][by] = type2goal.at(type - 1);
+                dangerRate[ex][ey] = type2goal.at(type - 1);
+            }else{
                 minTypeNum[type - 2]++;
+                dangerRate[bx][by] = type2goal.at(type - 2);
+                dangerRate[ex][ey] = type2goal.at(type - 2);
+            }
         }
     }
-    
 }
 
 void Chess::scan()
@@ -132,9 +178,9 @@ void Chess::scan()
     /****************************************************************************************/
     /********************************************遍历行***************************************/
     /****************************************************************************************/
-    for(int i=1; i<16; i++){
+    for(int i=0; i<17; i++){
         int count = 0, b = -1, e = -1;
-        for(int j=1; j<16; j++){
+        for(int j=0; j<17; j++){
             // deal with Max 
             if(count == 0 && table[i][j] == 1){
                 b = j;
@@ -175,7 +221,7 @@ void Chess::scan()
         count = 0;
         b = -1;
         e = -1;
-        for(int j=1; j<16; j++){
+        for(int j=0; j<17; j++){
             // deal with Min
             if(count == 0 && table[i][j] == 2){
                 b = j;
@@ -217,9 +263,9 @@ void Chess::scan()
     /****************************************************************************************/
     /********************************************遍历列***************************************/
     /****************************************************************************************/
-    for(int j=1; j<16; j++){
+    for(int j=0; j<17; j++){
         int count = 0, b = -1, e = -1;
-        for(int i=1; i<16; i++){
+        for(int i=0; i<17; i++){
             // deal with Max 
             if(count == 0 && table[i][j] == 1){
                 b = i;
@@ -260,7 +306,7 @@ void Chess::scan()
         count = 0;
         b = -1;
         e = -1;
-        for(int i=1; i<16; i++){
+        for(int i=0; i<17; i++){
             // deal with Min
             if(count == 0 && table[i][j] == 2){
                 b = i;
@@ -745,7 +791,7 @@ void Chess::evaluate()
         minGoal += goal;
     }
     //计算出goal的值
-    goal = maxGoal - minGoal * 1.2;
+    goal = maxGoal * 1.2 - minGoal;
 }
 
 float Chess::value(){
