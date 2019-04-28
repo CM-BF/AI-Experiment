@@ -1,3 +1,8 @@
+/**************************************************************************/
+/* 环境: Ubuntu 18.04 编译器: g++ 7.3.0 编译工具: Make 4.1  ******************/
+/* 作者: Shurui(Citrine) Gui              时间: 2019.04   ******************/
+/**************************************************************************/
+
 #include"fiveInARow.h"
 
 using namespace fiveInARow;
@@ -14,8 +19,11 @@ typedef struct site{
     }
 } structSite;
 
-
+/************************************困难度调节参数*************************************/
+/***********************************最高: 7,2 ****************************************/
 int maxDepth = 7;
+int wideLevel = 1;
+
 Chess mainChess;
 Chess funcChess;
 pos nextStep, currentStep;
@@ -36,8 +44,8 @@ priority_queue<structSite> Action()
             // 为空才执行
             //print("Action:%d, %d\n", i, j);
             structSite point = {x:i, y:j, nearNum:0};
-            for(int i1=-2; i1<=2; i1++){
-                for(int j1=-2; j1<=2; j1++){
+            for(int i1=-wideLevel; i1<=wideLevel; i1++){
+                for(int j1=-wideLevel; j1<=wideLevel; j1++){
                     if(i + i1 < 1 || i + i1 > 15 || j + j1 < 1 || j + j1 > 15)
                         continue;
                     int val = funcChess.getTable(i+i1, j+j1);
@@ -139,15 +147,20 @@ float Minimum_value(int depth, float a, float b)
 pos AI_where2choose()
 {
     Maximum_value(1, -2*MAX_GOAL, 2*MAX_GOAL);
-    funcChess.setTable(nextStep.x, nextStep.y, MAX_CHESS);
-    funcChess.show(nextStep.x, nextStep.y);
+    
 }
 
 int main(int argc, char ** argv)
 {
+    int useFile = 0;
     funcChess.setTable(8, 8, MAX_CHESS);
-    FILE *fp;
-    if((fp = fopen("data/input.txt", "r")) == NULL) cout << "Cannot open input file!" << endl;
+    FILE *fp, *fop;
+    //if((fp = fopen("data/input.txt", "r")) == NULL) cout << "Cannot open input file!" << endl;
+    if((fop = fopen("data/output.txt", "w")) == NULL) cout << "Cannot open input file!" << endl;
+    fprintf(fop, "        AI        ME\n");
+    fprintf(fop, "   [%2d,%2d]", 8, 8);
+    
+        
     // funcChess.setTable(9, 9, MIN_CHESS);
     // funcChess.setTable(9, 7, MAX_CHESS);
     // funcChess.evaluate();
@@ -155,32 +168,46 @@ int main(int argc, char ** argv)
     funcChess.show(8, 8);
 
     int userx, usery;
-    int useFile = 0;
+    
     while(1){
-        if(useFile){
-            fscanf(fp, "%d %d\n", &userx, &usery);
-        }else
-            scanf("%d %d", &userx, &usery);
+        scanf("%d %d", &userx, &usery);
+        if(userx < 0 || userx > 16 || usery < 0 || usery > 16){
+            cout << "Invalid!" << endl;
+            char ch;
+            while ((ch = getchar()) != EOF && ch != '\n');
+            continue;
+        }
         if (funcChess.getTable(userx, usery) != NO_CHESS){
             cout<< "You cannot set here!"<<endl;
+            char ch;
+            while ((ch = getchar()) != EOF && ch != '\n');
             continue;
         }
         funcChess.setTable(userx, usery, MIN_CHESS);
+        fprintf(fop, "   [%2d,%2d]\n", userx, usery);
         funcChess.show(userx, usery);
+        
         funcChess.evaluate();
         print("%f\n", funcChess.value());
         if(fabs(funcChess.value()) > MAX_GOAL/2){
-            cout<< "Congratulation!"<<endl;
+            fprintf(fop, "\n\nUser win!");
+            cout<< "Congratulation!"<<endl;    
             break;
         }
         AI_where2choose();
+        funcChess.setTable(nextStep.x, nextStep.y, MAX_CHESS);
+        fprintf(fop, "   [%2d,%2d]", nextStep.x, nextStep.y);
+        funcChess.show(nextStep.x, nextStep.y);
         funcChess.evaluate();
         print("%f\n", funcChess.value());
         if(fabs(funcChess.value()) > MAX_GOAL/2){
+            fprintf(fop, "\n\nAI win!");
             cout<< "Sorry, you loss..."<<endl;
             break;
         }
     }
+    fclose(fp);
+    fclose(fop);
     return 0;
 }
 
