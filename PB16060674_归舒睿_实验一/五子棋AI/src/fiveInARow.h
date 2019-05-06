@@ -22,7 +22,7 @@ using namespace std;
 
 namespace fiveInARow
 {
-#define MAX_GOAL 100000
+#define MAX_GOAL 999999999
 
 #define TYPE_FIVE 0
 #define TYPE_ALIVE_FOUR 1
@@ -98,7 +98,7 @@ Chess::Chess(/* args */)
 
     for(int i=0; i<17; i++){
         for(int j=0; j<17; j++){
-            dangerRate[i][j] = 0;
+            dangerRate[i][j] = 1;
         }
     }
 
@@ -128,7 +128,7 @@ void Chess::flush()
     }
     for(int i=0; i<17; i++){
         for(int j=0; j<17; j++){
-            dangerRate[i][j] = 0;
+            dangerRate[i][j] = 1;
         }
     }
     goal = 0;
@@ -145,34 +145,34 @@ inline void Chess::judge(int bx, int by, int ex, int ey, int type, string who)
     if(!who.compare("Max")){
         if(table[bx][by] != 0 && table[ex][ey] != 0){
             maxTypeNum[type]++;
-            dangerRate[bx][by] = type2goal.at(type);
-            dangerRate[ex][ey] = type2goal.at(type);
+            dangerRate[bx][by] *= type2goal.at(type)/2;
+            dangerRate[ex][ey] *= type2goal.at(type)/2;
         }else{
             if(table[bx][by] != 0 || table[ex][ey] != 0){
                 maxTypeNum[type - 1]++;
-                dangerRate[bx][by] = type2goal.at(type - 1);
-                dangerRate[ex][ey] = type2goal.at(type - 1);
+                dangerRate[bx][by] *= type2goal.at(type - 1)/2;
+                dangerRate[ex][ey] *= type2goal.at(type - 1)/2;
             }else{
                 maxTypeNum[type - 2]++;
-                dangerRate[bx][by] = type2goal.at(type - 2);
-                dangerRate[ex][ey] = type2goal.at(type - 2);
+                dangerRate[bx][by] *= type2goal.at(type - 2)/2;
+                dangerRate[ex][ey] *= type2goal.at(type - 2)/2;
             }
         }
     }
     if(!who.compare("Min")){
         if(table[bx][by] != 0 && table[ex][ey] != 0){
             minTypeNum[type]++;
-            dangerRate[bx][by] = type2goal.at(type);
-            dangerRate[ex][ey] = type2goal.at(type);
+            dangerRate[bx][by] *= type2goal.at(type)/2;
+            dangerRate[ex][ey] *= type2goal.at(type)/2;
         }else{
             if(table[bx][by] != 0 || table[ex][ey] != 0){
                 minTypeNum[type - 1]++;
-                dangerRate[bx][by] = type2goal.at(type - 1);
-                dangerRate[ex][ey] = type2goal.at(type - 1);
+                dangerRate[bx][by] *= type2goal.at(type - 1)/2;
+                dangerRate[ex][ey] *= type2goal.at(type - 1)/2;
             }else{
                 minTypeNum[type - 2]++;
-                dangerRate[bx][by] = type2goal.at(type - 2);
-                dangerRate[ex][ey] = type2goal.at(type - 2);
+                dangerRate[bx][by] *= type2goal.at(type - 2)/2;
+                dangerRate[ex][ey] *= type2goal.at(type - 2)/2;
             }
         }
     }
